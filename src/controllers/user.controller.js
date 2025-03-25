@@ -18,20 +18,22 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 
 
-   const {userName, email, fullName, passowrd} = req.body;
+   const {userName, email, fullName, password} = req.body;
 //    console.log(userName,email,fullName,passowrd);
 
-   if([userName, email, fullName, passowrd].some((field) => field?.trim() === "")){
+   if([userName, email, fullName, password].some((field) => field?.trim() === "")){
     throw new ApiError(400, "All fields are required");
    }
 
-   const existedUser =  User.findOne({
+   const existedUser =  await User.findOne({
     $or: [{email}, {userName}]
    })
 
    if(existedUser){
     throw new ApiError(409, "User already exists");
    }
+    //console.log(req.files);
+   
 
     const avatarLocalPath = req.files?.avatar ? req.files.avatar[0].path : null;
     const coverImageLocalPath = req.files?.coverImage ? req.files.coverImage[0].path : null;
@@ -47,6 +49,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     if(!avatar){
         throw new ApiError(500, "Failed to upload avatar");
     }
+    
 
     const user = new User({
         userName: userName.toLowerCase(),
@@ -54,7 +57,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || null,
-        passowrd
+        password
     });
 
     await user.save();

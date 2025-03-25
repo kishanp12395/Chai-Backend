@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
             ref: "Video"
         }
     ],
-    passowrd: {
+    password: {
         type: String,
         required: [true, "Password is required"],
     },
