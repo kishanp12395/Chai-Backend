@@ -98,6 +98,8 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 });
 
 
+
+
 export const loginUser = asyncHandler(async (req, res, next) => {
     // get user details from frontend
     // validate user details
@@ -144,6 +146,9 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, {accessToken, user: loggedInUser, refreshToken}, "User logged in successfully"));
 
 });
+
+
+
 
 
 export const logoutUser = asyncHandler(async (req, res) => {
