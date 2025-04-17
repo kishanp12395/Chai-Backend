@@ -313,7 +313,7 @@ export const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 
 
-const getUserChannelProfile = asyncHandler(async(req, res) => {
+export const getUserChannelProfile = asyncHandler(async(req, res) => {
     const {username} = req.params
 
     if (!username?.trim()) {
@@ -384,3 +384,61 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         new ApiResponse(200, channel[0], "User channel fetched successfully")
     )
 })
+
+
+
+
+export const getWatchHistory = asyncHandler(async(req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{
+                            owner:{
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user[0].watchHistory,
+            "Watch history fetched successfully"
+        )
+    )
+})
+
